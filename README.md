@@ -25,7 +25,7 @@ Built With:
 HTML / CSS / JavaScript.
 [meyerweb.com](https://meyerweb.com/eric/tools/css/reset/reset.css).
 [jQuery](https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js).
-[Firebase](="https://www.gstatic.com/firebasejs/5.5.8/firebase.js").
+[Firebase](https://www.gstatic.com/firebasejs/5.5.8/firebase.js).
 [Moment.js](https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js).
 
 Versioning:

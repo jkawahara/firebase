@@ -2,31 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>GifTastic</title>
+  <title>Train Scheduler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
     
-  <!-- Reset styling -->
-  <link rel="stylesheet" type="text/css" media="screen" href="assets/css/reset.css" />
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">  
 
   <!-- Custom styling -->
   <link rel="stylesheet" type="text/css" media="screen" href="assets/css/style.css" />
-
-  <!-- Firebase database-->
-  <script src="https://www.gstatic.com/firebasejs/5.5.8/firebase.js"></script>
-</head>
-
-<body>
-  <header>
-    <h1 class="title">Train Scheduler</h1>
-  </header>
-  
-  <section id="main-game-section">
-    
-  </section>
-
-  <footer>
-    <!-- Not used -->
-  </footer>
 
   <!-- jQuery Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -34,8 +17,91 @@
   <!-- Moment.js -->
   <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
 
+  <!-- Firebase app and database-->
+  <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-database.js"></script>
+</head>
+
+<body style="background-color:white; color:#1E4162">
+  <header>
+    <!-- Not used -->
+  </header>
+
+  <!-- Train Scheduler -->
+  <div class="container">
+    <!-- Jumbotron -->
+    <div class="jumbotron" style="background-color: #FE0004; color: white">
+      <div class="container">
+        <h1 class="display-4 text-center">High Speed Train Scheduler</h1>
+        <p class="lead text-center">We maintain the Bullet in train travel! </p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <!-- Current Train Schedule -->
+        <div class="card mb-4">
+          <div class="card-header" style="background-color: #16a54b; color:white">
+            Current Train Schedule
+          </div>
+          <div class="card-body" style="background-color: #b9e6f1">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Train Name</th>
+                  <th scope="col">Destination</th>
+                  <th scope="col">Frequency (min)</th>
+                  <th scope="col">Next Arrival</th>
+                  <th scope="col">Minutes Away</th>
+                </tr>
+              </thead>
+              <!-- Trains -->
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">  
+        <!-- Add Train -->
+        <div class="card mb-4">
+            <div class="card-header" style="background-color: #16a54b; color: white">
+              Add Train
+            </div>
+            <div class="card-body" style="background-color: #b9e6f1">
+              <!-- Entry Form -->
+              <form>
+                <div class="form-group">
+                  <label for="train-name-input">Train Name</label>
+                  <input class="form-control" id="train-name-input" type="text">
+                </div>
+                <div class="form-group">
+                  <label for="destination-input">Desitnation</label>
+                  <input class="form-control" id="destination-input" type="text">
+                </div>
+                <div class="form-group">
+                  <label for="first-train-time-input">First Train Time (HH:mm - military time)</label>
+                  <input class="form-control" id="first-train-time-input" type="text">
+                </div>
+                <div class="form-group">
+                  <label for="frequency-input">Frequency (min)</label>
+                  <input class="form-control" id="frequency-input" type="text">
+                </div>
+                <button type="submit" class="btn btn-primary float-left" id="add-train-btn" style="background-color: #16a54b; border-color: #16a54b">Submit</button>
+              </form>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <!-- Not used -->
+  </footer>
+
   <!-- JavaScript -->
   <script src="assets/javascript/app.js"></script>
-
 </body>
 </html>
