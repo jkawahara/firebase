@@ -12,9 +12,11 @@ $(document).ready(function() {
   };
   firebase.initializeApp(config);
 
-  // Declare variable for firebase database
-  var database = firebase.database();
-
+  // VARIABLES
+  // ================
+  var database = firebase.database(); // Declare variable for firebase database
+  var newRow; // Declare variable for refreshing data every minute
+  
   // FUNCTIONS
   // =========
 
@@ -49,6 +51,32 @@ $(document).ready(function() {
     }
   }
 
+  function dataRefresh() {
+    console.log("timing")
+    // Moment.js calls
+    // // First time, pushed back 1 year to ensure before current time
+    // var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
+    // // Difference between current time and first time
+    // var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+    // // Time apart
+    // var tRemainder = diffTime % trainFreq;
+    // // Minutes until next train
+    // var tMinutesTillTrain = trainFreq - tRemainder;
+    // // Next train
+    // var nextTrain = moment().add(tMinutesTillTrain, "minutes");
+
+    // Create new entries to add to current train schedule
+    newRow = $("<tr>").append(
+      $("<td>").text(trainName),
+      $("<td>").text(trainDest),
+      $("<td>").text(trainFreq),
+      $("<td>").text(moment(nextTrain).format("hh:mm A")),
+      $("<td>").text(tMinutesTillTrain),
+    );
+    $("#current-trains > tbody").append(newRow);
+  }
+
+
   // MAIN CONTROLLER
   // ===============
 
@@ -77,7 +105,7 @@ $(document).ready(function() {
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
 
     // Create new entries to add to current train schedule
-    var newRow = $("<tr>").append(
+    newRow = $("<tr>").append(
       $("<td>").text(trainName),
       $("<td>").text(trainDest),
       $("<td>").text(trainFreq),
@@ -86,8 +114,17 @@ $(document).ready(function() {
     );
     $("#current-trains > tbody").append(newRow);
 
+    // timedCount();  
+
     // Error handler
   }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
   });
+
+  // TIMER CONTROLS
+  // ==============
+
+  // Timer delay to update train data
+  setInterval(dataRefresh, 5000);
+
 });
