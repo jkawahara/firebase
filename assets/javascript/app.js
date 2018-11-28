@@ -163,9 +163,9 @@ $(document).ready(function() {
   // Listen for remove buttons
   $(document).on("on click", ".remove-btn", function(event){
     // If confirmed, remove from /trainData and current train schedule
-    var response = confirm("Remove train: " + $(this).attr("id"));
+    var response = confirm("Confirm removal of " + $(this).attr("id") + " train.");
     if (response) {
-      database.ref(`/trainData/${$(this).attr("data-key")}`).remove();
+      database.ref(`/trainData/${$(this).parent().attr("data-key")}`).remove();
       $(this).parent().remove();
     }
     
