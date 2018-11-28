@@ -16,24 +16,26 @@ $(document).ready(function() {
   // =========
   var database = firebase.database(); // Declare variable for firebase database
   
-  // connectionsRef references a specific location in our database.
-  // All of our connections will be stored in this directory.
+  // connectionsRef references a specific location in our database
+  // ==============================================================
+
+  // All of our connections will be stored in this directory
   var connectionsRef = database.ref("/connections");
 
   // '.info/connected' is a special location provided by Firebase that is updated
-  // every time the client's connection state changes.
-  // '.info/connected' is a boolean value, true if the client is connected and false if they are not.
+  // every time the client's connection state changes
+  // '.info/connected' is a boolean value, true if the client is connected and false if they are not
   var connectedRef = database.ref(".info/connected");
 
-  // When the client's connection state changes...
+  // When the client's connection state changes
   connectedRef.on("value", function(snap) {
 
-    // If they are connected..
+    // If they are connected
     if (snap.val()) {
 
-      // Add user to the connections list.
+      // Add user to the connections list
       var con = connectionsRef.push(true);
-      // Remove user from the connection list when they disconnect.
+      // Remove user from the connection list when they disconnect
       con.onDisconnect().remove();
     }
   });
@@ -80,8 +82,8 @@ $(document).ready(function() {
     }
   }
 
-  // Refresh current train schedule every minute
-  function dataRefresh() {
+  // Refresh current train schedule every minute by grabbing /trainData snapshot 
+  function refreshData() {
     database.ref("/trainData").on("value", function(snapshot) {
 
       $("#current-trains > tbody").empty();
@@ -93,46 +95,13 @@ $(document).ready(function() {
         var trainFirstTime = childSnapshot.val().firstTime;
         var trainFreq = childSnapshot.val().freq;
 
-        // Moment.js calls
-        // First time, pushed back 1 year to ensure before current time
-        var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
-        // Difference between current time and first time
-        var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
-        // Time apart
-        var tRemainder = diffTime % trainFreq;
-        // Minutes until next train
-        var tMinutesTillTrain = trainFreq - tRemainder;
-        // Next train
-        var nextTrain = moment().add(tMinutesTillTrain, "minutes");
-
-        // Create new entries to add to current train schedule
-        newRow = $("<tr>").append(
-          $("<td>").text(trainName),
-          $("<td>").text(trainDest),
-          $("<td>").text(trainFreq),
-          $("<td>").text(moment(nextTrain).format("hh:mm A")),
-          $("<td>").text(tMinutesTillTrain),
-        );
-        $("#current-trains > tbody").append(newRow);
+        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq)
       });
     });
   }
 
-  // MAIN CONTROLLER
-  // ===============
-
-  // Listen for form submit button
-  $("#add-train-btn").on("click", addTrainData);
-
-  // Listen for Firebase child_added
-  database.ref("/trainData").on("child_added", function(childSnapshot) {
-    // Locally store database snapshot
-    var trainName = childSnapshot.val().name;
-    var trainDest = childSnapshot.val().dest;
-    var trainFirstTime = childSnapshot.val().firstTime;
-    var trainFreq = childSnapshot.val().freq;
-
-    // Moment.js calls
+  // Update display after Moment.js calls
+  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq) {
     // First time, pushed back 1 year to ensure before current time
     var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
     // Difference between current time and first time
@@ -153,8 +122,24 @@ $(document).ready(function() {
       $("<td>").text(tMinutesTillTrain),
     );
     $("#current-trains > tbody").append(newRow);
+  }
 
-    // timedCount();  
+
+  // MAIN CONTROLLER
+  // ===============
+
+  // Listen for form submit button
+  $("#add-train-btn").on("click", addTrainData);
+
+  // Listen for child_added to /trainData and grab childSnapshot
+  database.ref("/trainData").on("child_added", function(childSnapshot) {
+    // Locally store database snapshot
+    var trainName = childSnapshot.val().name;
+    var trainDest = childSnapshot.val().dest;
+    var trainFirstTime = childSnapshot.val().firstTime;
+    var trainFreq = childSnapshot.val().freq;
+
+    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq);
 
     // Error handler
   }, function(errorObject) {
@@ -165,6 +150,6 @@ $(document).ready(function() {
   // ==============
 
   // Timer delay to update train data
-  setInterval(dataRefresh, 60000);
+  setInterval(refreshData, 60000);
 
 });

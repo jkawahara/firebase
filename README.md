@@ -1,18 +1,15 @@
-# Getting Started
-### 1. Why
+# Getting Started - Train Scheduler
+### 1. Why/Background
   * This is Berkeley Coding Boot Camp (BCBC) week 4 homework assignment.
   * The BCBC curriculum generally focuses on JavaScript along with HTML/CSS, using the MERN (MongoDB, Express, React, Node) software stack, to teach web development skills across HTML/CSS/Javascript. 
 
-### 2. What
+### 2. What/Objective
   * This homework covers the following aspects of web development on the client side, using a realtime database, jQuery, Moment.js, Bootstrap, to build a train scheduling web-based application. ![trainscheduler.png](assets/images/trainscheduler.png "app UI")
 
-  * Objective
-    * When adding trains, administrators should be able to submit the following: Train Name, Destination, First Train Time -- in military time, Frequency -- in minutes
-    * Calculate when the next train will arrive; this should be relative to the current time
-    * Users from many different machines must be able to view same train times
-
 ### 3. How
-  * TBD description
+  * User Story 1- When adding trains, administrators should be able to submit the following: Train Name, Destination, First Train Time -- in military time, Frequency -- in minutes
+  * User Story 2- Calculate when the next train will arrive; this should be relative to the current time
+  * User Story 3- Users from many different machines must be able to view same train times
 
   * Prerequisites for Development:
     * MacBook Air (Intel Core i7, 2.2 GHz, 1 Processor, 2 Cores, 8GB)
@@ -23,7 +20,7 @@
 
   * Built With:
     * Custom HTML / CSS / JavaScript.
-    * [Firebase](https://www.gstatic.com/firebasejs/5.5.8/firebase.js)
+    * [Firebase](https://www.gstatic.com/firebasejs/5.5.9/firebase.js)
     * [Moment.js](https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js)
     * [Bootstrap](https://getbootstrap.com/docs/4.1/getting-started/introduction/)
     * [jQuery](https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js)
