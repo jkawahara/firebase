@@ -10,6 +10,7 @@
   * User Story 1- When adding trains, administrators should be able to submit the following: Train Name, Destination, First Train Time -- in military time, Frequency -- in minutes
   * User Story 2- Calculate when the next train will arrive; this should be relative to the current time
   * User Story 3- Users from many different machines must be able to view same train times
+  * User Story 4- Update your "minutes to arrival" and "next train time" text once every minute
 
   * Prerequisites for Development:
     * MacBook Air (Intel Core i7, 2.2 GHz, 1 Processor, 2 Cores, 8GB)
