@@ -114,14 +114,14 @@ $(document).ready(function() {
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
 
     // Create new entries to add to current train schedule
-    newRow = $(`<tr id="${trainKey}">`).append(
+    newRow = $(`<tr data-key="${trainKey}">`).append(
       $("<td>").text(trainName),
       $("<td>").text(trainDest),
       $("<td>").text(trainFreq),
       $("<td>").text(moment(nextTrain).format("hh:mm A")),
       $("<td>").text(tMinutesTillTrain),
-      $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn" id="${trainKey}">Update</button>`),
-      $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn" id="${trainKey}">Remove</button>`)
+      $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn" id="${trainName}" data-key="${trainKey}">Update</button>`),
+      $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn" id="${trainName}" data-key="${trainKey}">Remove</button>`)
     );
     $("#current-trains > tbody").append(newRow);
   }
@@ -152,11 +152,14 @@ $(document).ready(function() {
 
   // Listen for remove buttons
   $(document).on("on click", ".remove-btn", function(event){
-    // Remove from /trainData
-    database.ref(`/trainData/${$(this).attr("id")}`).remove();
+    // If confirmed, remove from /trainData
+    var response = confirm("Remove train: " + $(this).attr("id"));
+    if (response) {
+      database.ref(`/trainData/${$(this).attr("data-key")}`).remove();
     
-    // Call refreshData to grab snapshot and update display
-    refreshData();
+      // Call refreshData to grab snapshot and update display
+      refreshData();
+    }
     
   });
 
