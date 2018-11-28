@@ -105,6 +105,7 @@ $(document).ready(function() {
     // First time, pushed back 1 year to ensure before current time
     var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
     // Difference between current time and first time
+    
     var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
     // Time apart
     var tRemainder = diffTime % trainFreq;
@@ -117,13 +118,13 @@ $(document).ready(function() {
     if (addTrainFlag) {
       // Create new entries to add to current train schedule
       newRow = $(`<tr data-key="${trainKey}">`).append(
-        $("<td contenteditable='true'>").text(trainName),
+        $(`<td contenteditable="true">`).text(trainName),
         $("<td contenteditable='true'>").text(trainDest),
         $("<td>").text(trainFreq),
         $(`<td id="${trainName.replace(/\s/g, '')}-next-train" contenteditable='true'>`).text(moment(nextTrain).format("hh:mm A")),
         $(`<td id="${trainName.replace(/\s/g, '')}-minutes-away">`).text(tMinutesTillTrain),
-        $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn" id="${trainName}">Update</button>`),
-        $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn" id="${trainName}"">Remove</button>`)
+        $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn">Update</button>`),
+        $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn">Remove</button>`)
       );
       $("#current-trains > tbody").append(newRow);
     
@@ -163,10 +164,29 @@ $(document).ready(function() {
   // Listen for remove buttons
   $(document).on("on click", ".remove-btn", function(event){
     // If confirmed, remove from /trainData and current train schedule
-    var response = confirm("Confirm removal of " + $(this).attr("id") + " train.");
+    var response = confirm("Confirm removal of " + $(this).parent().children()[0].textContent + " train.");
     if (response) {
       database.ref(`/trainData/${$(this).parent().attr("data-key")}`).remove();
       $(this).parent().remove();
+    }
+    
+  });
+
+  // Listen for update buttons
+  $(document).on("on click", ".update-btn", function(event){
+    // If confirmed, update /trainData
+    var response = confirm("Confirm updates for " + $(this).parent().children()[0].textContent + " train.");
+    if (response) {
+      // Create local temporary object for holding train data
+      var updatedTrain = {
+        name: $(this).parent().children()[0].textContent,
+        dest: $(this).parent().children()[1].textContent,
+        firstTime: moment($(this).parent().children()[3].textContent, "hh:mm A").format("HH:mm")
+      }
+
+      // Upload train data to database
+      database.ref(`/trainData/${$(this).parent().attr("data-key")}`).update(updatedTrain);
+      refreshData();
     }
     
   });
@@ -175,6 +195,6 @@ $(document).ready(function() {
   // ==============
 
   // Timer delay to update train data
-  setInterval(refreshData, 10000);
+  setInterval(refreshData, 60000);
 
 });
