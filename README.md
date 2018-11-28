@@ -11,6 +11,7 @@
   * User Story 2- Calculate when the next train will arrive; this should be relative to the current time
   * User Story 3- Users from many different machines must be able to view same train times
   * User Story 4- Update your "minutes to arrival" and "next train time" text once every minute
+  * User Story 5- Add update and remove buttons for each train. User can edit the row's elements (train's Name, Destination and Arrival Time) then, by relation, minutes to arrival
 
   * Prerequisites for Development:
     * MacBook Air (Intel Core i7, 2.2 GHz, 1 Processor, 2 Cores, 8GB)
