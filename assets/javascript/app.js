@@ -85,7 +85,6 @@ $(document).ready(function() {
   // Refresh current train schedule every minute by grabbing /trainData snapshot 
   function refreshData() {
     database.ref("/trainData").on("value", function(snapshot) {
-      $("#current-trains > tbody").empty();
       snapshot.forEach(function(childSnapshot) {
         // Locally store database snapshot
         var trainName = childSnapshot.val().name;
@@ -93,15 +92,16 @@ $(document).ready(function() {
         var trainFirstTime = childSnapshot.val().firstTime;
         var trainFreq = childSnapshot.val().freq;
         var trainKey = childSnapshot.key;
+        var addTrainFlag = false;
 
         // Call updateDisplay with values assigned to childSnapshot arguments
-        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey)
+        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey, addTrainFlag)
       });
     });
   }
 
   // Update display after Moment.js calls
-  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey) {
+  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey, addTrainFlag) {
     // First time, pushed back 1 year to ensure before current time
     var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
     // Difference between current time and first time
@@ -113,22 +113,31 @@ $(document).ready(function() {
     // Next train
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
 
-    // Create new entries to add to current train schedule
-    newRow = $(`<tr data-key="${trainKey}">`).append(
-      $("<td>").text(trainName),
-      $("<td>").text(trainDest),
-      $("<td>").text(trainFreq),
-      $("<td>").text(moment(nextTrain).format("hh:mm A")),
-      $("<td>").text(tMinutesTillTrain),
-      $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn" id="${trainName}" data-key="${trainKey}">Update</button>`),
-      $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn" id="${trainName}" data-key="${trainKey}">Remove</button>`)
-    );
-    $("#current-trains > tbody").append(newRow);
+    // Check if adding new train
+    if (addTrainFlag) {
+      // Create new entries to add to current train schedule
+      newRow = $(`<tr data-key="${trainKey}">`).append(
+        $("<td contenteditable='true'>").text(trainName),
+        $("<td contenteditable='true'>").text(trainDest),
+        $("<td>").text(trainFreq),
+        $(`<td id="${trainName.replace(/\s/g, '')}-next-train" contenteditable='true'>`).text(moment(nextTrain).format("hh:mm A")),
+        $(`<td id="${trainName.replace(/\s/g, '')}-minutes-away">`).text(tMinutesTillTrain),
+        $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn" id="${trainName}">Update</button>`),
+        $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn" id="${trainName}"">Remove</button>`)
+      );
+      $("#current-trains > tbody").append(newRow);
+    
+    // Update minutes to arrival and next train time
+    } else {
+      $(`#${trainName.replace(/\s/g, '')}-next-train`).text(moment(nextTrain).format("hh:mm A"));
+      $(`#${trainName.replace(/\s/g, '')}-minutes-away`).text(tMinutesTillTrain);
+    }
   }
 
 
   // MAIN CONTROLLER
   // ===============
+  $("#current-trains > tbody").empty();
 
   // Listen for form submit button
   $("#add-train-btn").on("click", addTrainData);
@@ -141,9 +150,10 @@ $(document).ready(function() {
     var trainFirstTime = childSnapshot.val().firstTime;
     var trainFreq = childSnapshot.val().freq;
     var trainKey = childSnapshot.key;
+    var addTrainFlag = true;
 
     // Call updateDisplay with values assigned to childSnapshot arguments
-    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey);
+    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey, addTrainFlag);
 
     // Error handler
   }, function(errorObject) {
@@ -152,13 +162,11 @@ $(document).ready(function() {
 
   // Listen for remove buttons
   $(document).on("on click", ".remove-btn", function(event){
-    // If confirmed, remove from /trainData
+    // If confirmed, remove from /trainData and current train schedule
     var response = confirm("Remove train: " + $(this).attr("id"));
     if (response) {
       database.ref(`/trainData/${$(this).attr("data-key")}`).remove();
-    
-      // Call refreshData to grab snapshot and update display
-      refreshData();
+      $(this).parent().remove();
     }
     
   });
@@ -167,6 +175,6 @@ $(document).ready(function() {
   // ==============
 
   // Timer delay to update train data
-  setInterval(refreshData, 60000);
+  setInterval(refreshData, 10000);
 
 });
