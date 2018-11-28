@@ -85,23 +85,23 @@ $(document).ready(function() {
   // Refresh current train schedule every minute by grabbing /trainData snapshot 
   function refreshData() {
     database.ref("/trainData").on("value", function(snapshot) {
-
       $("#current-trains > tbody").empty();
-
       snapshot.forEach(function(childSnapshot) {
         // Locally store database snapshot
         var trainName = childSnapshot.val().name;
         var trainDest = childSnapshot.val().dest;
         var trainFirstTime = childSnapshot.val().firstTime;
         var trainFreq = childSnapshot.val().freq;
+        var trainKey = childSnapshot.key;
 
-        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq)
+        // Call updateDisplay with values assigned to childSnapshot arguments
+        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey)
       });
     });
   }
 
   // Update display after Moment.js calls
-  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq) {
+  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey) {
     // First time, pushed back 1 year to ensure before current time
     var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
     // Difference between current time and first time
@@ -114,12 +114,14 @@ $(document).ready(function() {
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
 
     // Create new entries to add to current train schedule
-    newRow = $("<tr>").append(
+    newRow = $(`<tr id="${trainKey}">`).append(
       $("<td>").text(trainName),
       $("<td>").text(trainDest),
       $("<td>").text(trainFreq),
       $("<td>").text(moment(nextTrain).format("hh:mm A")),
       $("<td>").text(tMinutesTillTrain),
+      $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn" id="${trainKey}">Update</button>`),
+      $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn" id="${trainKey}">Remove</button>`)
     );
     $("#current-trains > tbody").append(newRow);
   }
@@ -138,12 +140,24 @@ $(document).ready(function() {
     var trainDest = childSnapshot.val().dest;
     var trainFirstTime = childSnapshot.val().firstTime;
     var trainFreq = childSnapshot.val().freq;
+    var trainKey = childSnapshot.key;
 
-    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq);
+    // Call updateDisplay with values assigned to childSnapshot arguments
+    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey);
 
     // Error handler
   }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
+  });
+
+  // Listen for remove buttons
+  $(document).on("on click", ".remove-btn", function(event){
+    // Remove from /trainData
+    database.ref(`/trainData/${$(this).attr("id")}`).remove();
+    
+    // Call refreshData to grab snapshot and update display
+    refreshData();
+    
   });
 
   // TIMER CONTROLS
