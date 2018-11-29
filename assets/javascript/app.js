@@ -68,7 +68,9 @@ $(document).ready(function() {
         name: trainName,
         dest: trainDest,
         firstTime: trainFirstTime,
-        freq: trainFreq
+        freq: trainFreq,
+        arrivalChange: "",
+        updatedFlag: false
       }
 
       // Upload train data to database
@@ -91,17 +93,19 @@ $(document).ready(function() {
         var trainDest = childSnapshot.val().dest;
         var trainFirstTime = childSnapshot.val().firstTime;
         var trainFreq = childSnapshot.val().freq;
+        var trainArrivalChange = childSnapshot.val().arrivalChange;
+        var trainUpdatedFlag = childSnapshot.val().updatedFlag;
         var trainKey = childSnapshot.key;
         var addTrainFlag = false;
 
         // Call updateDisplay with values assigned to childSnapshot arguments
-        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey, addTrainFlag)
+        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag)
       });
     });
   }
 
   // Update display after Moment.js calls
-  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey, addTrainFlag) {
+  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag) {
     // First time, pushed back 1 year to ensure before current time
     var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
     // Difference between current time and first time
@@ -111,15 +115,14 @@ $(document).ready(function() {
     var tRemainder = diffTime % trainFreq;
     // Minutes until next train
     var tMinutesTillTrain = trainFreq - tRemainder;
-    // Next train
+    // Next train; update /trainData
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
-
     // Check if adding new train
     if (addTrainFlag) {
       // Create new entries to add to current train schedule
       newRow = $(`<tr data-key="${trainKey}">`).append(
-        $(`<td contenteditable="true">`).text(trainName),
-        $("<td contenteditable='true'>").text(trainDest),
+        $(`<td id="${trainName.replace(/\s/g, '')}-name" contenteditable="true">`).text(trainName),
+        $(`<td id="${trainName.replace(/\s/g, '')}-dest" contenteditable="true">`).text(trainDest),
         $("<td>").text(trainFreq),
         $(`<td id="${trainName.replace(/\s/g, '')}-next-train" contenteditable='true'>`).text(moment(nextTrain).format("hh:mm A")),
         $(`<td id="${trainName.replace(/\s/g, '')}-minutes-away">`).text(tMinutesTillTrain),
@@ -127,11 +130,16 @@ $(document).ready(function() {
         $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn">Remove</button>`)
       );
       $("#current-trains > tbody").append(newRow);
-    
-    // Update minutes to arrival and next train time
-    } else {
+    // Update minutes to arrival and next train time for refreshing data
+    } else if (!addTrainFlag && !trainUpdatedFlag) {
+      // $(`#${trainName.replace(/\s/g, '')}-name`).text(trainName);
+      // $(`#${trainName.replace(/\s/g, '')}-dest`).text(trainDest);
       $(`#${trainName.replace(/\s/g, '')}-next-train`).text(moment(nextTrain).format("hh:mm A"));
       $(`#${trainName.replace(/\s/g, '')}-minutes-away`).text(tMinutesTillTrain);
+    
+    // Return nextTrain for conditional check to see if /trainData updated
+    } else {
+      return moment(nextTrain).format("HH:mm");  
     }
   }
 
@@ -150,11 +158,13 @@ $(document).ready(function() {
     var trainDest = childSnapshot.val().dest;
     var trainFirstTime = childSnapshot.val().firstTime;
     var trainFreq = childSnapshot.val().freq;
+    var trainArrivalChange = childSnapshot.val().arrivalChange;
+    var trainUpdatedFlag = childSnapshot.val().updatedFlag;
     var trainKey = childSnapshot.key;
     var addTrainFlag = true;
 
     // Call updateDisplay with values assigned to childSnapshot arguments
-    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainKey, addTrainFlag);
+    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag);
 
     // Error handler
   }, function(errorObject) {
@@ -174,21 +184,48 @@ $(document).ready(function() {
 
   // Listen for update buttons
   $(document).on("on click", ".update-btn", function(event){
-    // If confirmed, update /trainData
-    var response = confirm("Confirm updates for " + $(this).parent().children()[0].textContent + " train.");
-    if (response) {
-      // Create local temporary object for holding train data
-      var updatedTrain = {
-        name: $(this).parent().children()[0].textContent,
-        dest: $(this).parent().children()[1].textContent,
-        firstTime: moment($(this).parent().children()[3].textContent, "hh:mm A").format("HH:mm")
-      }
+    var updateRow = $(this).parent();
+    // Check if confirmed, update /trainData
+    var response = confirm("Confirm updates for " + updateRow.children()[0].textContent + " train.");
 
-      // Upload train data to database
-      database.ref(`/trainData/${$(this).parent().attr("data-key")}`).update(updatedTrain);
-      refreshData();
-    }
-    
+    // Locally store database snapshot
+    database.ref(`/trainData/${updateRow.attr("data-key")}`).once("value", function(snapshot) {
+      // Locally store database snapshot
+      var trainName = snapshot.val().name;
+      var trainDest = snapshot.val().dest;
+      var trainFreq = snapshot.val().freq;
+      var trainFirstTime = snapshot.val().firstTime;
+      var trainArrivalChange = snapshot.val().arrivalChange;
+      var trainUpdatedFlag = snapshot.val().updatedFlag;
+      var trainKey = snapshot.key;
+      var addTrainFlag = false;
+
+      // Call updateDisplay to get nextTrain for conditional check to see if /trainData updated
+      var nextTrain = updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag);
+
+      if (response) {
+        // Create local temporary object for holding train data; assign nextTrain to firstTime 
+        var updatedTrain = {
+          name: updateRow.children()[0].textContent,
+          dest: updateRow.children()[1].textContent,
+          firstTime: moment(updateRow.children()[3].textContent, "hh:mm A").format("HH:mm"),
+          updatedFlag: true
+        }
+        // var updatedTrainKey = $(this).parent().attr("data-key");
+        // Check if /trainData was updated
+        if (updatedTrain.name !== trainName || updatedTrain.dest !== trainDest || updatedTrain.firstTime !== nextTrain) {
+          // Reset flag
+          updatedTrain.updatedFlag = false;
+          // Upload train data to database
+          database.ref(`/trainData/${trainKey}`).update(updatedTrain);
+        }
+      } else {
+        $(updateRow.children()[0]).text(trainName);
+        $(updateRow.children()[1]).text(trainDest);
+      }
+    });
+
+    // refreshData();
   });
 
   // TIMER CONTROLS
