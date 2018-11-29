@@ -17,9 +17,14 @@
   <!-- Moment.js -->
   <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
 
-  <!-- Firebase app and database-->
+  <!-- Firebase app, database, auth-->
   <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase-auth.js"></script>
+  
+  <!-- FirebaseUI for Web - Auth -->
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.css" />
 </head>
 
 <body style="background-color:#b9e6f1; color:#1E4162">
@@ -49,11 +54,12 @@
             <table class="table" id="current-trains">
               <thead>
                 <tr>
-                  <th scope="col">Train Name</th>
-                  <th scope="col">Destination</th>
+                  <th scope="col">Train Name (Editable)</th>
+                  <th scope="col">Destination (Editable)</th>
                   <th scope="col">Frequency (min)</th>
-                  <th scope="col">Next Arrival</th>
+                  <th scope="col">Next Arrival (Editable)</th>
                   <th scope="col">Minutes Away</th>
+                  <th scope="col">Press Update after Editing or Remove Train</th>
                 </tr>
               </thead>
               <!-- Trains -->
