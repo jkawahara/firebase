@@ -134,8 +134,8 @@ $(document).ready(function() {
         $("<td>").text(trainFreq),
         $(`<td id="${trainName.replace(/\s/g, '')}-next-train" contenteditable='true'>`).text(moment(nextTrain).format("hh:mm A")),
         $(`<td id="${trainName.replace(/\s/g, '')}-minutes-away">`).text(tMinutesTillTrain),
-        $(`<button type="button" class="btn btn-outline-warning btn-sm update-btn">Update</button>`),
-        $(`<button type="button" class="btn btn-outline-danger btn-sm remove-btn">Remove</button>`)
+        $(`<button type="button" class="btn btn-outline-warning btn-lg update-btn">Update</button>`),
+        $(`<button type="button" class="btn btn-outline-danger btn-lg remove-btn">Remove</button>`)
       );
       $("#current-trains > tbody").append(newRow);
     // Update minutes to arrival and next train time for refreshing data

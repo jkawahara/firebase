@@ -1,0 +1,3 @@
+tbody tr:hover *[contenteditable="true"] {
+  background-color: #FFB80A;
+}

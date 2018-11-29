@@ -12,6 +12,7 @@
   * User Story 3- Users from many different machines must be able to view same train times
   * User Story 4- Update your "minutes to arrival" and "next train time" text once every minute
   * User Story 5- Add update and remove buttons for each train. User can edit the row's elements (train's Name, Destination and Arrival Time) then, by relation, minutes to arrival
+    * As clarification, if Arrival Time is changed, the Next Arrival will show the Arrival Time until train arrives. As soon as train arrives, the Next Arrival Time will return to original calculation use First Train Time
 
   * Prerequisites for Development:
     * MacBook Air (Intel Core i7, 2.2 GHz, 1 Processor, 2 Cores, 8GB)
