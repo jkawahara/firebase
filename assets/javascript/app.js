@@ -98,18 +98,26 @@ $(document).ready(function() {
         var trainKey = childSnapshot.key;
         var addTrainFlag = false;
 
-        // Call updateDisplay with values assigned to childSnapshot arguments
-        updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag)
+        // Check if updated arrival time and call updateDisplay and pass either updated arrival time or first train time
+        // Once updated arrival time passes, the next train and minutes away will be calculated based on the first train time 
+        if (trainArrivalChange !== "") {
+          if (moment().format("HH:mm") < trainArrivalChange) {
+            updateDisplay(trainName, trainDest, trainArrivalChange, trainFreq, trainUpdatedFlag, trainKey, addTrainFlag);
+          } else {
+            database.ref(`/trainData/${trainKey}`).update({arrivalChange: ""})
+          }
+        } else {
+          updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainUpdatedFlag, trainKey, addTrainFlag);
+        }
       });
     });
   }
 
   // Update display after Moment.js calls
-  function updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag) {
+  function updateDisplay(trainName, trainDest, trainTime, trainFreq, updatedFlag, trainKey, addTrainFlag) {
     // First time, pushed back 1 year to ensure before current time
-    var firstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
+    var firstTimeConverted = moment(trainTime, "HH:mm").subtract(1, "years");
     // Difference between current time and first time
-    
     var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
     // Time apart
     var tRemainder = diffTime % trainFreq;
@@ -131,15 +139,13 @@ $(document).ready(function() {
       );
       $("#current-trains > tbody").append(newRow);
     // Update minutes to arrival and next train time for refreshing data
-    } else if (!addTrainFlag && !trainUpdatedFlag) {
-      // $(`#${trainName.replace(/\s/g, '')}-name`).text(trainName);
-      // $(`#${trainName.replace(/\s/g, '')}-dest`).text(trainDest);
+    } else if (!addTrainFlag && !updatedFlag) {
       $(`#${trainName.replace(/\s/g, '')}-next-train`).text(moment(nextTrain).format("hh:mm A"));
       $(`#${trainName.replace(/\s/g, '')}-minutes-away`).text(tMinutesTillTrain);
-    
+      
     // Return nextTrain for conditional check to see if /trainData updated
-    } else {
-      return moment(nextTrain).format("HH:mm");  
+    } else if (updatedFlag) {
+      return moment(nextTrain).format("HH:mm");
     }
   }
 
@@ -164,7 +170,7 @@ $(document).ready(function() {
     var addTrainFlag = true;
 
     // Call updateDisplay with values assigned to childSnapshot arguments
-    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag);
+    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainUpdatedFlag, trainKey, addTrainFlag);
 
     // Error handler
   }, function(errorObject) {
@@ -187,7 +193,6 @@ $(document).ready(function() {
     var updateRow = $(this).parent();
     // Check if confirmed, update /trainData
     var response = confirm("Confirm updates for " + updateRow.children()[0].textContent + " train.");
-
     // Locally store database snapshot
     database.ref(`/trainData/${updateRow.attr("data-key")}`).once("value", function(snapshot) {
       // Locally store database snapshot
@@ -200,38 +205,45 @@ $(document).ready(function() {
       var trainKey = snapshot.key;
       var addTrainFlag = false;
 
-      // Call updateDisplay to get nextTrain for conditional check to see if /trainData updated
-      var nextTrain = updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainArrivalChange, trainUpdatedFlag, trainKey, addTrainFlag);
-
       if (response) {
         // Create local temporary object for holding train data; assign nextTrain to firstTime 
         var updatedTrain = {
           name: updateRow.children()[0].textContent,
-          dest: updateRow.children()[1].textContent,
-          firstTime: moment(updateRow.children()[3].textContent, "hh:mm A").format("HH:mm"),
+          dest: updateRow.children()[1].textContent, 
           updatedFlag: true
         }
-        // var updatedTrainKey = $(this).parent().attr("data-key");
+        var arrivalChange = moment(updateRow.children()[3].textContent, "hh:mm A").format("HH:mm");
+
+        // Call updateDisplay to get nextTrain for conditional check to see if /trainData updated
+        if (trainArrivalChange !== "") {
+          if (moment().format("HH:mm") < trainArrivalChange) {
+            var nextTrain = updateDisplay(trainName, trainDest, trainArrivalChange, trainFreq, updatedTrain.updatedFlag, trainKey, addTrainFlag);
+          }
+        } else {
+          var nextTrain = updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, updatedTrain.updatedFlag, trainKey, addTrainFlag);
+        }
         // Check if /trainData was updated
-        if (updatedTrain.name !== trainName || updatedTrain.dest !== trainDest || updatedTrain.firstTime !== nextTrain) {
+        if (updatedTrain.name !== trainName || updatedTrain.dest !== trainDest || arrivalChange !== nextTrain) {
           // Reset flag
           updatedTrain.updatedFlag = false;
+          if (arrivalChange !== nextTrain) {
+            updatedTrain.arrivalChange = moment(updateRow.children()[3].textContent, "hh:mm A").format("HH:mm");
+          }
           // Upload train data to database
           database.ref(`/trainData/${trainKey}`).update(updatedTrain);
+          refreshData();
         }
       } else {
         $(updateRow.children()[0]).text(trainName);
         $(updateRow.children()[1]).text(trainDest);
       }
     });
-
-    // refreshData();
   });
 
   // TIMER CONTROLS
   // ==============
 
   // Timer delay to update train data
-  setInterval(refreshData, 60000);
+  setInterval(refreshData, 10000);
 
 });
