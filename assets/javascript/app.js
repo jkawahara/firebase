@@ -169,8 +169,17 @@ $(document).ready(function() {
     var trainKey = childSnapshot.key;
     var addTrainFlag = true;
 
-    // Call updateDisplay with values assigned to childSnapshot arguments
-    updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainUpdatedFlag, trainKey, addTrainFlag);
+    // Check if updated arrival time and call updateDisplay and pass either updated arrival time or first train time
+    // Once updated arrival time passes, the next train and minutes away will be calculated based on the first train time 
+    if (trainArrivalChange !== "") {
+      if (moment().format("HH:mm") < trainArrivalChange) {
+        updateDisplay(trainName, trainDest, trainArrivalChange, trainFreq, trainUpdatedFlag, trainKey, addTrainFlag);
+      } else {
+        database.ref(`/trainData/${trainKey}`).update({arrivalChange: ""})
+      }
+    } else {
+      updateDisplay(trainName, trainDest, trainFirstTime, trainFreq, trainUpdatedFlag, trainKey, addTrainFlag);
+    }
 
     // Error handler
   }, function(errorObject) {
@@ -244,6 +253,6 @@ $(document).ready(function() {
   // ==============
 
   // Timer delay to update train data
-  setInterval(refreshData, 10000);
+  setInterval(refreshData, 60000);
 
 });
