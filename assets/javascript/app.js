@@ -9,10 +9,62 @@ $(document).ready(function() {
     databaseURL: "https://bcbc-firebase.firebaseio.com",
     projectId: "bcbc-firebase",
     storageBucket: "bcbc-firebase.appspot.com",
-    messagingSenderId: "890360445286"
+    messagingSenderId: "890360445286",
+    clientID: "890360445286-d7m6j9bg4qc6mrbpdnihsbm3jmf82832.apps.googleusercontent.com",
+    scopes: [
+      "email",
+      "profile",
+      "openid"
+    ]
   };
   firebase.initializeApp(config);
   
+  // Firebase Authentication Google, GitHub
+  ui.start('#firebaseui-auth-container', {
+    signInOptions: [
+      // List of OAuth providers supported.
+      {
+        provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        scopes: config.scopes
+      },
+      firebase.auth.GithubAuthProvider.PROVIDER_ID
+    ],
+    // Other config options...
+  });
+
+  var uiConfig = {
+    // callbacks: {
+    //   signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+    //     // User successfully signed in.
+    //     // Return type determines whether we continue the redirect automatically
+    //     // or whether we leave that to developer to handle.
+    //     return true;
+    //   },
+    //   uiShown: function() {
+    //     // The widget is rendered.
+    //     // Hide the loader.
+    //     document.getElementById('loader').style.display = 'none';
+    //   }
+    // },
+    // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
+    // signInFlow: 'popup',
+    signInSuccessUrl: '<url-to-redirect-to-on-success>',
+    signInOptions: [
+      // Leave the lines as is for the providers you want to offer your users.
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      firebase.auth.GithubAuthProvider.PROVIDER_ID
+    ],
+    // Terms of service url.
+    tosUrl: '<your-tos-url>',
+    // Privacy policy url.
+    privacyPolicyUrl: '<your-privacy-policy-url>'
+  };
+
+  // Initialize the FirebaseUI Widget using Firebase.
+  var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+  // The start method will wait until the DOM is loaded.
+  ui.start('#firebaseui-auth-container', uiConfig);
 
   // VARIABLES
   // =========
