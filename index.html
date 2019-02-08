@@ -67,14 +67,6 @@
     // The start method will wait until the DOM is loaded
     ui.start('#firebaseui-auth-container', uiConfig);
   </script>
-  <script>
-    function signOut() {
-      var auth2 = gapi.auth2.getAuthInstance();
-      auth2.signOut().then(function () {
-        console.log('User signed out.');
-      });
-    }
-  </script>
 </head>
 
 <body style="background-color:#b9e6f1; color:#1E4162">
