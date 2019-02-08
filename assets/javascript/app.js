@@ -138,13 +138,12 @@ $(document).ready(function() {
     }
   }
 
-  function signOut() {
-    firebase.auth().signOut().then(function() {
-      console.log('Signed Out');
-    }, function(error) {
-      console.error('Sign Out Error', error);
-    });
-  }
+  // function signOut() {
+  //   var auth2 = gapi.auth2.getAuthInstance();
+  //   auth2.signOut().then(function () {
+  //     console.log('User signed out.');
+  //   });
+  // }
 
   // MAIN CONTROLLER
   // ===============
