@@ -7,7 +7,7 @@
     * Server-side: Firebase Realtime Database for data persistence
     * Client-side: Bootstrap framework for HTML/CSS/JS
   * User Stories, by categorization:
-    * Design and develop Firebase configuration
+    * Design and develop Firebase configuration, including authentication using open authorization providers
     * Design and develop View
       * User Story 1- When adding trains, administrators should be able to submit the following: Train Name, Destination, First Train Time -- in military time, Frequency -- in minutes
       * User Story 2- Calculate when the next train will arrive; this should be relative to the current time
