@@ -7,7 +7,8 @@
     * Client-side: Bootstrap framework for HTML/CSS/JS
   * User Stories, by categorization:
     * Design and develop Firebase configuration, including authentication using open authorization providers
-    * Design and develop View ![trainscheduler.png](assets/images/trainscheduler.png "app UI")
+    * Design and develop View
+      * ![trainscheduler.png](assets/images/trainscheduler.png "app UI")
       * User Story 1- When adding trains, administrators should be able to submit the following: Train Name, Destination, First Train Time -- in military time, Frequency -- in minutes
       * User Story 2- Calculate when the next train will arrive; this should be relative to the current time
       * User Story 3- Users from many different machines must be able to view same train times
